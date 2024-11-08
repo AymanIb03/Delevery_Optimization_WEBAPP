@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats - Optimisation des Livraisons</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header img {
+            height: 50px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            max-width: 900px; /* Augmenter la largeur de la div */
+            margin: 20px auto;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: auto;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        ul li {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        ul li a {
+            text-decoration: none;
+            color: #007bff;
+            display: block;
+            min-width: 300px; /* Espace réservé pour le texte */
+        }
+
+        ul li a:hover {
+            text-decoration: underline;
+        }
+
+        /* Icône d'information stylisée */
+        .info-icon {
+            color: #007bff;
+            cursor: pointer;
+            font-size: 1.5rem;
+            margin-left: 10px;
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            border: 2px solid #007bff;
+            transition: all 0.3s;
+        }
+
+        .info-icon:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Style du modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 500px;
+            text-align: center;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .modal-close:hover {
+            color: #000;
+        }
+
+        .modal-download {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .modal-download:hover {
+            background-color: #0056b3;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .btn-blue {
+            background-color: #007bff; /* Bouton de retour bleu */
+        }
+
+        .btn-blue:hover {
+            background-color: #0056b3;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        footer p {
+            margin: 0;
+            color: #fc9d2a;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <img src="static/insoft.png" alt="Insoft">
+        <img src="static/emsi.png" alt="EMSI">
+        <img src="static/ESC.png" alt="ESC 2024">
+    </header>
+
+    <div class="container">
+        <h1>Résultats des Processus</h1>
+        <h2>Fichiers générés :</h2>
+        <ul>
+            <li>
+                <a href="{{ url_for('download_file', filename='adjusted_clusters_final.xlsx') }}">adjusted_clusters_final.xlsx</a>
+                <span class="info-icon" onclick="showModal('adjusted_clusters_final.xlsx')">i</span>
+            </li>
+            <li>
+                <a href="{{ url_for('download_file', filename='nearest_clients_from_depot_bellman_ford.xlsx') }}">nearest_clients_from_depot_bellman_ford.xlsx</a>
+                <span class="info-icon" onclick="showModal('nearest_clients_from_depot_bellman_ford.xlsx')">i</span>
+            </li>
+            <li>
+                <a href="{{ url_for('download_file', filename='nearest_clients_visualization.png') }}">nearest_clients_visualization.png</a>
+                <span class="info-icon" onclick="showModal('nearest_clients_visualization.png')">i</span>
+            </li>
+            <li>
+                <a href="{{ url_for('download_file', filename='plot.png') }}">plot.png</a>
+                <span class="info-icon" onclick="showModal('plot.png')">i</span>
+            </li>
+            <li>
+                <a href="{{ url_for('download_file', filename='tours_optimaux_nearest_neighbor_complet.xlsx') }}">tours_optimaux_nearest_neighbor_complet.xlsx</a>
+                <span class="info-icon" onclick="showModal('tours_optimaux_nearest_neighbor_complet.xlsx')">i</span>
+            </li>
+        </ul>
+        <button onclick="window.location.href='/visualisation'">Lancer la Visualisation</button>
+        <button class="btn-blue" onclick="window.location.href='/'">Retour à la page principale</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 - Insoft | EMSI | ESC 24</p>
+    </footer>
+
+    <!-- Modal -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&#x2716;</span>
+            <h3>Information sur le fichier</h3>
+            <p id="modal-info-text"></p>
+            <button class="modal-download" id="modal-download-button">Télécharger le fichier</button>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour afficher le modal avec les informations du fichier
+        function showModal(fileName) {
+            var modal = document.getElementById('infoModal');
+            var modalText = document.getElementById('modal-info-text');
+            var downloadButton = document.getElementById('modal-download-button');
+
+            // Ajouter des descriptions spécifiques pour chaque fichier
+            if (fileName === "adjusted_clusters_final.xlsx") {
+                modalText.innerText = "Ce fichier Excel est généré par le script qui crée les clusters pour les clients en utilisant l'algorithme OPTICS, divisant les clients en 25 clusters selon les 25 camions (15 de 3 tonnes et 10 de 5 tonnes).";
+            } else if (fileName === "nearest_clients_from_depot_bellman_ford.xlsx") {
+                modalText.innerText = "Ce fichier est généré après l'analyse du fichier 'adjusted_clusters_final.xlsx' avec l'algorithme Bellman-Ford pour trouver, pour chaque cluster, le client le plus proche du dépôt.";
+            } else if (fileName === "nearest_clients_visualization.png") {
+                modalText.innerText = "Cette visualisation représente graphiquement les clients les plus proches du dépôt dans chaque cluster, aidant à comprendre la répartition géographique des clients.";
+            } else if (fileName === "plot.png") {
+                modalText.innerText = "Le fichier 'plot.png' montre la distribution des clients dans chaque cluster, avec une couleur différente pour chaque cluster.";
+            } else if (fileName === "tours_optimaux_nearest_neighbor_complet.xlsx") {
+                modalText.innerText = "Ce fichier montre les tournées optimales pour chaque cluster, en commençant par le dépôt, avec les distances totales parcourues en utilisant l'algorithme Nearest Neighbor.";
+            } else {
+                modalText.innerText = "Voici une description pour le fichier : " + fileName;
+            }
+
+            // Mettre à jour le lien de téléchargement du bouton
+            downloadButton.onclick = function() {
+                window.location.href = "/download/" + fileName;
+            };
+
+            modal.style.display = 'flex';
+        }
+
+        // Fonction pour fermer le modal
+        function closeModal() {
+            var modal = document.getElementById('infoModal');
+            modal.style.display = 'none';
+        }
+
+        // Fermer le modal en cliquant en dehors de la fenêtre
+        window.onclick = function(event) {
+            var modal = document.getElementById('infoModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

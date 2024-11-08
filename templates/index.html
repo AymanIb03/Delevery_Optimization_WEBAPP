@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimisation des Livraisons</title>
+
+    <!-- Google Font for modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header img {
+            height: 50px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px 40px; /* Réduction du padding */
+            border-radius: 15px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: 20px auto;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: auto; /* Ajuste la hauteur automatiquement */
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            font-size: 16px;
+            color: #444;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .file-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-input {
+            opacity: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 12px;
+            background-color: #007bff;
+            color: white !important;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .file-label:hover {
+            background-color: #0056b3;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        button.btn {
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            padding: 13px; /* Légère réduction du padding */
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        button.btn:hover {
+            background-color: #218838;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        footer p {
+            margin: 0;
+            color: #fc9d2a;
+        }
+
+        /* Style pour rendre la page initiale transparente lors du traitement */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #progress-bar-container {
+            width: 80%;
+            text-align: center;
+        }
+
+        #progress-bar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar-fill {
+            height: 30px;
+            width: 0;
+            background-color: #007bff;
+            border-radius: 12px;
+            transition: width 0.4s ease;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            font-size: 22px;
+            color: #007bff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Amélioration de l'animation des points pour le traitement en cours */
+        .loading-dots {
+            position: relative;
+            top: -2px;
+            font-size: 24px;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img src="static/insoft.png" alt="Insoft">
+        <img src="static/emsi.png" alt="EMSI">
+        <img src="static/ESC.png" alt="ESC 2024">
+    </header>
+
+    <div class="container">
+        <h1>Optimisation des Livraisons</h1>
+        <p class="description">Téléchargez les fichiers nécessaires pour lancer l'optimisation des livraisons. Suivez les étapes ci-dessous.</p>
+
+        <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="customer_data">Importer les données des clients :</label>
+                <div class="file-input-container">
+                    <label class="file-label" for="customer_data">Choisir un fichier</label>
+                    <input type="file" name="customer_data" id="customer_data" class="file-input" accept=".xlsx" required onchange="renameFile(this, 'file-name-client', 'data.xlsx')">
+                    <span class="file-name" id="file-name-client">Aucun fichier sélectionné</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="distance_data">Importer la matrice des distances :</label>
+                <div class="file-input-container">
+                    <label class="file-label" for="distance_data">Choisir un fichier</label>
+                    <input type="file" name="distance_data" id="distance_data" class="file-input" accept=".xlsx" required onchange="renameFile(this, 'file-name-distance', 'distance.xlsx')">
+                    <span class="file-name" id="file-name-distance">Aucun fichier sélectionné</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn">Lancer l'optimisation</button>
+        </form>
+    </div>
+
+    <!-- Overlay pour la barre de progression -->
+    <div id="overlay">
+        <div id="progress-bar-container">
+            <h4 class="status-message">Traitement en cours <span class="loading-dots">...</span></h4>
+            <div id="progress-bar">
+                <div class="progress-bar-fill"></div>
+            </div>
+            <div class="status-message" id="status-text"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 - Insoft | EMSI | ESC 24</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Fonction pour renommer le fichier et afficher son nom
+        function renameFile(input, fileNameElementId, newFileName) {
+            const file = input.files[0];
+            let fileName = file ? file.name : "Aucun fichier sélectionné";
+            document.getElementById(fileNameElementId).textContent = fileName;
+
+            // Renommer le fichier avec un nouveau nom
+            const renamedFile = new File([file], newFileName, { type: file.type });
+
+            // Remplacer le fichier avec le fichier renommé
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(renamedFile);
+            input.files = dataTransfer.files;
+        }
+
+        var socket = io();
+
+        // Soumettre le formulaire via AJAX pour éviter le rechargement de la page
+        $('#upload-form').on('submit', function(e) {
+            e.preventDefault(); // Empêche la soumission classique du formulaire
+
+            var formData = new FormData(this);
+
+            // Afficher la barre de progression
+            document.body.classList.add('dimmed');
+            document.getElementById('overlay').style.display = 'flex';
+
+            // Soumettre le formulaire via AJAX
+            $.ajax({
+                url: '/upload',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    console.log("Upload réussi");
+                },
+                error: function(error) {
+                    console.log("Erreur lors de l'upload : " + error);
+                }
+            });
+        });
+
+        // Mettre à jour la barre de progression avec SocketIO
+        socket.on('progress_update', function(data) {
+            var progressBarFill = document.querySelector('.progress-bar-fill');
+            var statusText = document.getElementById('status-text');
+
+            progressBarFill.style.width = data.progress + '%';
+            statusText.innerHTML = data.message;
+
+            // Si le processus est terminé, rediriger vers /results
+            if (data.progress === 100) {
+                setTimeout(function() {
+                    window.location.href = '/results';
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>

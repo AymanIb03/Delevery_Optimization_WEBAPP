@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisation des Tournées Optimales</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #80deea);
+            font-family: 'Nunito', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 3em;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            width: 100%; /* Prendre la largeur complète */
+        }
+
+        #cluster-dropdown {
+            width: 30%; /* Étendre la largeur du dropdown à 60% de la ligne */
+            padding: 10px 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border: 2px solid #2980b9;
+            border-radius: 10px;
+            color: #2980b9;
+            background-color: white;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #cluster-dropdown:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.15);
+        }
+
+        .graph-container {
+            display: flex;
+            justify-content: center;
+            width: 85%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
+            background-color: white;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .graph-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        #tour-graph {
+            width: 100%;
+            height: 700px;
+        }
+
+        /* Animation for the graph */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        #tour-graph {
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #cluster-dropdown {
+                width: 80%; /* Ajuster pour les écrans plus petits */
+            }
+
+            .graph-container {
+                width: 100%;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2.5em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #cluster-dropdown {
+                width: 90%; /* Plus large pour les très petits écrans */
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1><i class="fas fa-route"></i> Visualisation des Tournées Optimales par Cluster</h1>
+
+<div class="dropdown-container">
+    <select id="cluster-dropdown">
+        <!-- Les options du dropdown seront injectées ici par Flask -->
+        {% for cluster in clusters %}
+        <option value="{{ cluster['value'] }}">{{ cluster['label'] }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="graph-container">
+    <div id="tour-graph"></div>
+</div>
+
+<script>
+    document.getElementById('cluster-dropdown').addEventListener('change', function() {
+        var cluster_id = parseInt(this.value, 10);  // Assurez-vous que l'ID du cluster est un entier
+
+        // Vérification de la valeur sélectionnée
+        if (isNaN(cluster_id) || cluster_id < 1 || cluster_id > 25) {
+            console.error("Cluster ID non valide :", cluster_id);
+            return;  // Ne rien faire si la sélection est invalide
+        }
+
+        console.log('Cluster sélectionné:', cluster_id);
+
+        // Envoyer une requête POST vers le serveur Flask pour mettre à jour le graphique
+        fetch('/update_graph', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cluster_id: cluster_id })  // Envoyer les données au serveur
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Vérification du JSON retourné par le serveur
+            console.log('Réponse du serveur:', data);
+
+            if (data.error) {
+                console.error('Erreur du serveur :', data.error);
+                return;
+            }
+
+            // Utiliser Plotly pour afficher le nouveau graphique
+            var graphDiv = document.getElementById('tour-graph');
+            try {
+                const parsedData = JSON.parse(data);
+                Plotly.react(graphDiv, parsedData.data, parsedData.layout);
+            } catch (error) {
+                console.error('Erreur lors du parsing du JSON:', error);
+            }
+        })
+        .catch(error => console.error('Erreur lors de la mise à jour du graphique:', error));
+    });
+
+    // Charger le graphique pour le premier cluster par défaut (cluster 1)
+    window.onload = function() {
+        document.getElementById('cluster-dropdown').value = 1;
+        document.getElementById('cluster-dropdown').dispatchEvent(new Event('change'));
+    };
+</script>
+
+</body>
+</html>
